@@ -27,7 +27,6 @@ const newFormData = (): Partial<AIConfig> => ({
 
 export const PersonaModal: React.FC<PersonaModalProps> = ({ isOpen, onClose, onSave, initialData }) => {
     const [formData, setFormData] = useState<Partial<AIConfig>>(newFormData);
-    const [useCustomModel, setUseCustomModel] = useState(false);
     const [testStatus, setTestStatus] = useState<{ testing: boolean; ok?: boolean; result?: string }>({ testing: false });
     const [isFetchingModels, setIsFetchingModels] = useState(false);
     const [showKey, setShowKey] = useState(false);
@@ -45,17 +44,9 @@ export const PersonaModal: React.FC<PersonaModalProps> = ({ isOpen, onClose, onS
 
     useEffect(() => {
         if (!isOpen) return;
-        if (initialData) {
-            setFormData(initialData);
-            const combined = presetsFor(initialData.apiType);
-            setUseCustomModel(initialData.model ? !combined.includes(initialData.model) : false);
-        } else {
-            setFormData(newFormData());
-            setUseCustomModel(false);
-        }
+        setFormData(initialData ? initialData : newFormData());
         setTestStatus({ testing: false });
         setShowKey(false);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isOpen, initialData]);
 
     if (!isOpen) return null;
@@ -67,18 +58,6 @@ export const PersonaModal: React.FC<PersonaModalProps> = ({ isOpen, onClose, onS
 
     const handleApiTypeChange = (newType: APIType) => {
         setFormData({ ...formData, apiType: newType, model: DEFAULT_MODELS[newType] });
-        setUseCustomModel(false);
-        clearStatus();
-    };
-
-    const handleModelChange = (value: string) => {
-        if (value === '__custom__') {
-            setUseCustomModel(true);
-            setFormData({ ...formData, model: '' });
-        } else {
-            setUseCustomModel(false);
-            setFormData({ ...formData, model: value });
-        }
         clearStatus();
     };
 
@@ -113,8 +92,7 @@ export const PersonaModal: React.FC<PersonaModalProps> = ({ isOpen, onClose, onS
                 const next = { ...cachedModels, [apiType]: models };
                 setCachedModels(next);
                 localStorage.setItem('cached_models', JSON.stringify(next));
-                setFormData(prev => ({ ...prev, model: models[0] }));
-                setUseCustomModel(false);
+                setFormData(prev => ({ ...prev, model: prev.model?.trim() ? prev.model : models[0] }));
             } else {
                 setTestStatus({ testing: false, ok: false, result: '未获取到模型，请检查 API Key / Base URL' });
             }
@@ -233,34 +211,18 @@ export const PersonaModal: React.FC<PersonaModalProps> = ({ isOpen, onClose, onS
                                     {isFetchingModels ? '获取中…' : '动态获取'}
                                 </button>
                             </div>
-                            {currentPresets.length === 0 ? (
-                                // 自定义地址等没有预设模型的 provider：直接手填，避免存成空 model
-                                <input
-                                    className={`${styles.input} ${styles.mono}`}
-                                    value={formData.model || ''}
-                                    onChange={e => { setFormData({ ...formData, model: e.target.value }); clearStatus(); }}
-                                    placeholder="填模型名，如 gpt-4o / gemini-3-pro（你的代理支持的）"
-                                />
-                            ) : (
-                                <>
-                                    <select
-                                        className={styles.select}
-                                        value={useCustomModel ? '__custom__' : (formData.model || DEFAULT_MODELS[apiType])}
-                                        onChange={e => handleModelChange(e.target.value)}
-                                    >
-                                        {currentPresets.map(m => <option key={m} value={m}>{m}</option>)}
-                                        <option value="__custom__">自定义模型…</option>
-                                    </select>
-                                    {useCustomModel && (
-                                        <input
-                                            className={styles.input}
-                                            value={formData.model || ''}
-                                            onChange={e => { setFormData({ ...formData, model: e.target.value }); clearStatus(); }}
-                                            placeholder="输入模型名称"
-                                        />
-                                    )}
-                                </>
-                            )}
+                            {/* 一个可输入的下拉框：能直接打字（自定义型号），也能从建议里选（预设/动态获取） */}
+                            <input
+                                className={`${styles.input} ${styles.mono}`}
+                                value={formData.model || ''}
+                                onChange={e => { setFormData({ ...formData, model: e.target.value }); clearStatus(); }}
+                                placeholder="填或选模型名，如 gpt-4o / gemini-3-pro"
+                                list={`models-${apiType}`}
+                                autoComplete="off"
+                            />
+                            <datalist id={`models-${apiType}`}>
+                                {currentPresets.map(m => <option key={m} value={m} />)}
+                            </datalist>
                         </div>
                     </div>
 
