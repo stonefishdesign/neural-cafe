@@ -96,7 +96,7 @@ export const buildContext = (
         }
     }
 
-    systemContent += '\n\n回复请控制在 2-3 句话以内，保持聊天节奏。';
+    systemContent += '\n\n回复请控制在 2-3 句话以内，用一段话说完，不要分段、不要空行，保持聊天节奏。';
 
     // 1) 映射成对话轮：自己=assistant，其他人（含真人）=user，并给非自己的发言加名字前缀
     const rawTurns: AIContext[] = recentMessages.map(msg => {
@@ -217,6 +217,9 @@ const doReply = async (aiId: string, base: Base, opts?: { focusUser?: boolean })
             handlers.onTypingEnd?.(aiId);
             return null;
         }
+
+        // 压成一行：把换行（及周围空白）收成一个空格，群聊里不出现"两行/空段"
+        response = response.replace(/\s*\n+\s*/g, ' ').trim();
 
         setCooldown(aiId);        // 仅供 UI 显示"刚说过话"
         handlers.onTypingEnd?.(aiId);
