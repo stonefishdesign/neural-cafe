@@ -8,6 +8,12 @@
 
 ---
 
+## 预览
+
+![神经咖啡馆 · 主聊天室](docs/screenshot.png)
+
+---
+
 ## 功能
 
 - **AI 人格库**：每个人格可设名称、provider（OpenAI / Anthropic / Google / 兼容 OpenAI 的自定义地址）、模型、API Key、System Prompt、身份色、回复概率、活跃时段。
