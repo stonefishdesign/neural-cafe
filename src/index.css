@@ -1,0 +1,124 @@
+:root {
+  /* 背景 */
+  --bg-canvas: #fcfbf9;
+  --bg-sidebar: #f6f4f1;
+  --bg-surface: #ffffff;
+  --bg-subtle: #f3f1ed;
+
+  /* 描边 */
+  --border-hairline: rgba(40, 33, 28, 0.08);
+  --border-strong: rgba(40, 33, 28, 0.14);
+
+  /* 文字 */
+  --text-primary: #2b2622;
+  --text-secondary: #6b655f;
+  --text-tertiary: #9a938b;
+
+  /* 咖啡主操作色 */
+  --coffee: #6f5440;
+  --coffee-hover: #5d4534;
+  --on-coffee: #ffffff;
+
+  /* 状态 */
+  --danger: #b4453a;
+  --online: #5b9d6b;
+  --cooldown: #c9a14a;
+  --offline: #b9b2aa;
+
+  --overlay: rgba(30, 25, 20, 0.28);
+
+  --radius-sm: 6px;
+  --radius: 10px;
+  --radius-lg: 14px;
+
+  --shadow-card: 0 1px 2px rgba(30, 25, 20, 0.04);
+  --shadow-modal: 0 12px 40px rgba(30, 25, 20, 0.18);
+
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg-canvas);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+p {
+  margin: 0;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+input,
+textarea,
+select {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+textarea {
+  resize: vertical;
+}
+
+/* 全局细滚动条 */
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
+}
+
+@keyframes nc-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes nc-rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

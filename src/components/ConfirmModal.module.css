@@ -1,0 +1,67 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 100;
+  animation: nc-fade-in 0.15s ease-out;
+}
+
+.modal {
+  width: 100%;
+  max-width: 360px;
+  background: var(--bg-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-modal);
+  overflow: hidden;
+  animation: nc-rise 0.16s ease-out;
+}
+
+.title {
+  padding: 18px 22px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.message {
+  padding: 8px 22px 18px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.foot {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  padding: 14px 22px 18px;
+}
+
+.cancel {
+  padding: 8px 15px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+}
+
+.cancel:hover {
+  background: var(--bg-subtle);
+}
+
+.confirm {
+  padding: 8px 15px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--danger);
+  color: #fff;
+  font-weight: 500;
+}
+
+.confirm:hover {
+  filter: brightness(0.94);
+}
