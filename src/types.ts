@@ -28,6 +28,7 @@ export interface ChatRoom {
         persona: string;   // 用户的人设描述
     };
     script?: string;       // 聊天室剧本/背景设定
+    lastMessageAt?: number; // 最近活跃时间戳，用于侧栏排序
 }
 
 // 消息接口

@@ -34,7 +34,27 @@ function App() {
   const handleSelectRoom = useCallback((roomId: string) => {
     setCurrentRoomId(roomId);
     setView('chat');
+    window.location.hash = `/room/${roomId}`;
   }, [setCurrentRoomId]);
+
+  const handleOpenConfig = useCallback(() => {
+    setView('personas');
+    window.location.hash = '/personas';
+  }, []);
+
+  // hash 路由：#/room/<id> 进房间、#/personas 进配置；刷新/前进后退都能用
+  const applyHash = useCallback(() => {
+    const h = window.location.hash.replace(/^#\/?/, '');
+    if (h === 'personas') { setView('personas'); return; }
+    const m = h.match(/^room\/(.+)$/);
+    if (m) { setCurrentRoomId(m[1]); setView('chat'); }
+  }, [setCurrentRoomId]);
+
+  useEffect(() => {
+    applyHash();
+    window.addEventListener('hashchange', applyHash);
+    return () => window.removeEventListener('hashchange', applyHash);
+  }, [applyHash]);
 
   const startTyping = useCallback((aiId: string) => {
     setTypingIds(prev => (prev.includes(aiId) ? prev : [...prev, aiId]));
@@ -67,6 +87,9 @@ function App() {
         return;
       }
 
+      // 标记当前房间为最近活跃 → 侧栏置顶
+      upsertRoom({ ...currentRoom, lastMessageAt: Date.now() });
+
       // Trigger AI replies
       const roomContext = {
         script: currentRoom.script,
@@ -93,7 +116,7 @@ function App() {
         },
       });
     },
-    [currentRoomId, currentRoom, configs, addMessage, startTyping, stopTyping, showNotice]
+    [currentRoomId, currentRoom, configs, addMessage, startTyping, stopTyping, showNotice, upsertRoom]
   );
 
   const handleSavePersona = useCallback((data: Partial<AIConfig> & { id?: string }) => {
@@ -117,7 +140,7 @@ function App() {
         onDeleteRoom={deleteRoom}
         onEditRoom={(room) => setEditingRoom(room)}
         onNewRoom={() => setEditingRoom(null)}
-        onOpenConfig={() => setView('personas')}
+        onOpenConfig={handleOpenConfig}
       />
 
       <main className={styles.main}>
