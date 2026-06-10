@@ -3,6 +3,13 @@ import type { AIConfig, AIContext } from '../types';
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000;
 
+// 规整 OpenAI 兼容的 Base URL：只填了主机（如 http://localhost:8045）时自动补 /v1；
+// 已带 /v1、/v1beta 等版本段则原样保留，避免重复，省得用户记不清要不要加 /v1。
+const normalizeOpenAIBase = (raw?: string): string => {
+    const b = (raw || 'https://api.openai.com/v1').trim().replace(/\/+$/, '');
+    return /\/v\d+[a-z0-9]*$/i.test(b) ? b : `${b}/v1`;
+};
+
 // 统一的API调用接口
 export const callAI = async (
     config: AIConfig,
@@ -26,7 +33,7 @@ const callOpenAI = async (
     config: AIConfig,
     context: AIContext[]
 ): Promise<string> => {
-    const baseUrl = config.baseUrl || 'https://api.openai.com/v1';
+    const baseUrl = normalizeOpenAIBase(config.baseUrl);
 
     for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
         try {
@@ -224,7 +231,7 @@ export const fetchAvailableModels = async (config: { apiType: string, apiKey: st
     
     try {
         if (config.apiType === 'openai' || config.apiType === 'openai-compatible') {
-            const baseUrl = config.baseUrl || 'https://api.openai.com/v1';
+            const baseUrl = normalizeOpenAIBase(config.baseUrl);
             const res = await fetch(`${baseUrl}/models`, {
                 headers: { 'Authorization': `Bearer ${config.apiKey}` }
             });

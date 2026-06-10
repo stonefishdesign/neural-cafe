@@ -240,7 +240,7 @@ export const PersonaModal: React.FC<PersonaModalProps> = ({ isOpen, onClose, onS
                                 onChange={e => { setFormData({ ...formData, baseUrl: e.target.value }); clearStatus(); }}
                                 placeholder={DEFAULT_BASE_URLS[apiType] || '留空使用默认地址'}
                             />
-                            <span className={styles.note}>留空则用 provider 默认地址；兼容 OpenAI 格式的中转可改这里</span>
+                            <span className={styles.note}>留空则用 provider 默认地址；兼容 OpenAI 格式的中转可改这里（填或不填 /v1 都行）</span>
                         </div>
                         <div className={styles.field}>
                             <div className={styles.labelRow}>
