@@ -31,7 +31,21 @@ interface Base {
     allAIConfigs: AIConfig[];
     roomContext?: RoomContext;
     handlers: ReplyHandlers;
+    epoch?: number; // 本串回复所属的轮次纪元；用户每发新消息 +1，旧纪元的在途/排队回复一律作废
 }
+
+// ===== 轮次纪元：防止上一轮还在排队/在途的回复，叠到用户新发言开启的新一轮上 =====
+const roomEpochs = new Map<string, number>();
+
+const bumpEpoch = (roomId: string | null): number => {
+    const key = roomId ?? '';
+    const next = (roomEpochs.get(key) ?? 0) + 1;
+    roomEpochs.set(key, next);
+    return next;
+};
+
+const isStale = (base: Base): boolean =>
+    base.epoch !== undefined && roomEpochs.get(base.roomId ?? '') !== base.epoch;
 
 interface ProcessParams extends Base {
     message: Message;
@@ -189,7 +203,9 @@ const doReply = async (aiId: string, base: Base, opts?: { focusUser?: boolean })
     const { handlers } = base;
     const config = base.allAIConfigs.find(c => c.id === aiId);
     if (!config) return null;
-    if (roomChanged(base)) return null;
+    // 作废条件：用户切走了房间，或用户又发了新消息（本串已是旧纪元）
+    const abandoned = () => roomChanged(base) || isStale(base);
+    if (abandoned()) return null;
 
     handlers.onTypingStart?.(aiId);
     try {
@@ -202,11 +218,11 @@ const doReply = async (aiId: string, base: Base, opts?: { focusUser?: boolean })
 
         // 模型偶尔会返回空（这一轮"没话说"）——重试一次
         let response = await callAI(config, context);
-        if (!response.trim() && !roomChanged(base)) {
+        if (!response.trim() && !abandoned()) {
             response = await callAI(config, context);
         }
 
-        if (roomChanged(base)) {
+        if (abandoned()) {
             handlers.onTypingEnd?.(aiId);
             return null;
         }
@@ -240,7 +256,7 @@ const runRound = async (roundIds: string[], base: Base, startTurn: number): Prom
     let lastContent = '';
 
     for (const aiId of ids) {
-        if (roomChanged(base)) return;
+        if (roomChanged(base) || isStale(base)) return; // 切房/新纪元 → 整轮作废
         if (turn >= MAX_AI_TURNS) break; // 保险：超大房间也不超过硬上限
         turn++;
         const content = await doReply(aiId, base, { focusUser: true }); // A：全员轮聚焦用户最新消息
@@ -252,7 +268,7 @@ const runRound = async (roundIds: string[], base: Base, startTurn: number): Prom
     }
 
     // 全员回复完，进入搭腔阶段（深度从 0 起算）
-    if (lastSender && !roomChanged(base)) {
+    if (lastSender && !roomChanged(base) && !isStale(base)) {
         void processNewMessage({
             ...base,
             message: { id: '', sender: lastSender, content: lastContent, timestamp: Date.now() },
@@ -270,7 +286,7 @@ const handleBanterReply = async (
     banterTurn: number,
 ): Promise<void> => {
     const content = await doReply(aiId, base);
-    if (content !== null && !roomChanged(base)) {
+    if (content !== null && !roomChanged(base) && !isStale(base)) {
         void processNewMessage({
             ...base,
             message: { id: '', sender: aiId, content, timestamp: Date.now() },
@@ -283,6 +299,12 @@ const handleBanterReply = async (
 // ===== 入口：决定谁来回复 =====
 export const processNewMessage = async (params: ProcessParams): Promise<void> => {
     const { message, aiTurn = 0, banterTurn = 0, ...base } = params;
+
+    // 用户每发一条新消息就开新纪元：上一轮所有还在排队/在途的回复立即作废，
+    // 不会叠到新一轮上（也就不会突破 MAX_AI_TURNS）
+    if (message.sender === 'user') {
+        base.epoch = bumpEpoch(base.roomId);
+    }
 
     const readyAIs = base.roomAIIds
         .map(id => base.allAIConfigs.find(c => c.id === id))
