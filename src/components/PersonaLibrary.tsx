@@ -65,7 +65,7 @@ export const PersonaLibrary: React.FC<PersonaLibraryProps> = ({
                             </div>
 
                             <div className={styles.persona}>
-                                {config.systemPrompt || '还没写人设…'}
+                                {config.publicIntro || config.systemPrompt || '还没写人设…'}
                             </div>
 
                             <div className={styles.tags}>

@@ -25,6 +25,7 @@ export const useAIConfigs = () => {
             baseUrl: config.baseUrl,
             model: config.model,
             systemPrompt: config.systemPrompt || '',
+            publicIntro: config.publicIntro,
             color: config.color,
             avatar: config.avatar,
             activeHours: config.activeHours,

@@ -102,7 +102,7 @@ const callClaude = async (
                     'anthropic-dangerous-direct-browser-access': 'true',
                 },
                 body: JSON.stringify({
-                    model: config.model || 'claude-3-5-haiku-latest',
+                    model: config.model || 'claude-4-5-haiku-latest',
                     max_tokens: 150,
                     system: systemPrompt,
                     messages: messages,

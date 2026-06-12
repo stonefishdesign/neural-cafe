@@ -157,12 +157,14 @@ const shuffle = <T,>(arr: T[]): T[] => {
     return a;
 };
 
+// 成员名单：带上各自的「公开简介」（若有），让大家开局就互相认识，又不泄露彼此 systemPrompt 里的底牌
 const participantsFor = (aiId: string, base: Base): string[] => [
     ...(base.roomContext?.userIdentity?.name ? [base.roomContext.userIdentity.name] : []),
     ...base.roomAIIds
         .filter(id => id !== aiId)
-        .map(id => base.allAIConfigs.find(c => c.id === id)?.name)
-        .filter((n): n is string => !!n),
+        .map(id => base.allAIConfigs.find(c => c.id === id))
+        .filter((c): c is AIConfig => !!c)
+        .map(c => (c.publicIntro?.trim() ? `${c.name}（${c.publicIntro.trim()}）` : c.name)),
 ];
 
 // 按 replyProbability 比例加权随机选 1 个（offline ×0.25）；全为 0 则等概率。

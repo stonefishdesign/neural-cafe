@@ -292,6 +292,18 @@ export const PersonaModal: React.FC<PersonaModalProps> = ({ isOpen, onClose, onS
                         />
                     </div>
 
+                    {/* 公开简介 */}
+                    <div className={styles.field}>
+                        <label className={styles.label}>公开简介（可选）</label>
+                        <input
+                            className={styles.input}
+                            value={formData.publicIntro || ''}
+                            onChange={e => setFormData({ ...formData, publicIntro: e.target.value })}
+                            placeholder="一句话，别人眼中的TA，如：组里的点子王，嘴快心善"
+                        />
+                        <span className={styles.note}>会贴给群里其他 AI 看，让大家互相认识；藏底牌的设定写在上面的人格设定里即可，不会泄露</span>
+                    </div>
+
                     {/* 回复概率 */}
                     <div className={styles.field}>
                         <label className={styles.label}>回复概率：{formData.replyProbability ?? 20}%</label>

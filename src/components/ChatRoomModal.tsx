@@ -13,7 +13,7 @@ interface ChatRoomModalProps {
     initialData?: ChatRoom;
 }
 
-const MAX_AIS = 3;
+const MAX_AIS = 5;
 
 export const ChatRoomModal: React.FC<ChatRoomModalProps> = ({ isOpen, onClose, onSave, aiConfigs, initialData }) => {
     const [roomName, setRoomName] = useState('');
@@ -163,8 +163,8 @@ export const ChatRoomModal: React.FC<ChatRoomModalProps> = ({ isOpen, onClose, o
                                                         {config.model || DEFAULT_MODELS[config.apiType]}
                                                     </span>
                                                 </div>
-                                                {config.systemPrompt && (
-                                                    <div className={styles.memberDesc}>{config.systemPrompt}</div>
+                                                {(config.publicIntro || config.systemPrompt) && (
+                                                    <div className={styles.memberDesc}>{config.publicIntro || config.systemPrompt}</div>
                                                 )}
                                             </div>
                                             <span className={styles.checkbox}><Check size={14} /></span>

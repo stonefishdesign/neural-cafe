@@ -9,6 +9,7 @@ export interface AIConfig {
     baseUrl?: string;
     model?: string; // 用户选择或自定义的模型名
     systemPrompt: string;
+    publicIntro?: string; // 公开简介：贴给群里其他成员看的"别人眼中的TA"，不泄露 systemPrompt 里的底牌
     color?: string; // 身份色 hex，用于色块头像与 @ 标识
     avatar?: string; // 可选：上传的头像图片 dataURL（默认展示 name 双字母）
     activeHours?: {
